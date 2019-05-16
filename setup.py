@@ -44,4 +44,13 @@ setup(
 
     tests_require=tests_require,
     extras_require=extras_require,
+
+    entry_points={
+        'sentry.plugins': [
+            'sentry_regressions = sentry_regressions.plugin:RegressionPlugin'
+        ],
+        'sentry.apps': [
+            'sentry_regressions = sentry_regressions'
+        ],
+    },
 )
