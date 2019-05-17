@@ -5,6 +5,8 @@ from sentry.models.groupresolution import GroupResolution
 from sentry.models.organization import Organization
 from sentry.models.release import Release
 from sentry.testutils import PluginTestCase
+from sentry_regressions.plugin import parse_version as pv
+from sentry_regressions.plugin import parse_version_fallback as pvfb
 from sentry_regressions.plugin import RegressionPlugin
 
 
@@ -77,3 +79,23 @@ class TestRegressionPlugin(PluginTestCase):
         self.resolve(self.group, self.release_8_1, in_release)
 
         self.assertEqual(None, self.plugin.is_regression(self.group, event))
+
+    def test_compares_dev0_versions_correctly(self):
+        # Note: Fallback version parsing doesn't handle this correctly
+        self.assertTrue(pv('8.0') > pv('8.0.dev0'))
+
+    def test_compares_year_based_versions_correctly(self):
+        self.assertTrue(pv('2020.1') > pv('2019.1'))
+
+    def test_compares_multi_digit_versions_correctly(self):
+        self.assertTrue(pv('11.0') > pv('2.0'))
+        self.assertTrue(pv('5.11') > pv('5.2'))
+        self.assertTrue(pv('5.11.0') > pv('5.2.0'))
+
+    def test_fallback_compares_year_based_versions_correctly(self):
+        self.assertTrue(pvfb('2020.1') > pvfb('2019.1'))
+
+    def test_fallback_compares_multi_digit_versions_correctly(self):
+        self.assertTrue(pvfb('11.0') > pvfb('2.0'))
+        self.assertTrue(pvfb('5.11') > pvfb('5.2'))
+        self.assertTrue(pvfb('5.11.0') > pvfb('5.2.0'))

@@ -3,6 +3,11 @@ from sentry.models.groupresolution import GroupResolution
 from sentry.plugins import Plugin
 import sentry_regressions
 
+try:
+    from pkg_resources import parse_version as pkg_parse_version
+except ImportError:
+    pkg_parse_version = None
+
 
 GITHUB_URL = 'https://github.com/4teamwork/sentry-regressions'
 
@@ -75,6 +80,19 @@ class RegressionPlugin(Plugin):
 
 
 def parse_version(version_string):
+    """Parse a version string.
+
+    Will attempt to use `packaging` module to parse versions according to
+    PEP 440. If the `packaging` module is not available (usually vendored
+    via `pkg_resources`) will fall back to a more naive version parsing.
+    """
+    if pkg_parse_version is not None:
+        return pkg_parse_version(version_string)
+
+    return parse_version_fallback(version_string)
+
+
+def parse_version_fallback(version_string):
     """Naive version parsing implementation.
 
     Turns a version string into a list of version components with numeric

@@ -35,6 +35,15 @@ This regression plugin will instead take actual **release versions** into
 account when detecting regressions, by parsing version strings and comparing
 them correctly (including natural sort order for numbers).
 
+For parsing versions strings, the plugin will attempt to use the ``packaging``
+module (via  `pkg_resources.parse_version() <https://setuptools.readthedocs.io/en/latest/pkg_resources.html#parsing-utilities>`_)
+if available to parse versions according to `Python's PEP440 <https://www.python.org/dev/peps/pep-0440/>`_.
+
+While this is certainly suited for versions used in Python packages, the
+version specification outlined in PEP 440 is pretty universal in its core,
+and should be applicable to many other programming languages' versioning
+conventions, unless you're using a very exotic versioning scheme.
+
 
 Installation
 ============
