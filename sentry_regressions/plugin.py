@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from sentry.models.groupresolution import GroupResolution
 from sentry.plugins import Plugin
+import logging
 import sentry_regressions
 
 try:
@@ -8,6 +9,8 @@ try:
 except ImportError:
     pkg_parse_version = None
 
+
+logger = logging.getLogger(__name__)
 
 GITHUB_URL = 'https://github.com/4teamwork/sentry-regressions'
 
@@ -63,8 +66,10 @@ class RegressionPlugin(Plugin):
         pv = parse_version
         try:
             return pv(occurred_in_release) >= pv(resolved_in_release)
-        except:
+        except Exception as exc:
             # Error during version parsing - defer to other plugins
+            logger.warn('Failed to compare versions %r and %r: %r' % (
+                occurred_in_release, resolved_in_release, exc))
             return None
 
     def get_resolution(self, group):
